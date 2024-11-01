@@ -24,14 +24,15 @@ jobs:
         path: ~/.gradle/caches
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
-    - name: Download Android SDK
+    - name: Download Android SDK Command Line Tools
       run: |
         sudo apt-get update
         sudo apt-get install -y wget unzip
-        wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
-        unzip commandlinetools-linux-7583922_latest.zip -d $ANDROID_HOME
+        export ANDROID_HOME=$HOME/android-sdk
         mkdir -p $ANDROID_HOME/cmdline-tools
-        mv $ANDROID_HOME/cmdline-tools/latest $ANDROID_HOME/cmdline-tools/latest
+        wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
+        unzip commandlinetools-linux-7583922_latest.zip -d $ANDROID_HOME/cmdline-tools/
+        mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
     - name: Accept licenses
       run: |
