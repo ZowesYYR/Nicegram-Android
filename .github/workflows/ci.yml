@@ -16,7 +16,13 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v1
       with:
-        java-version: '11'
+        java-version: '17'  # Java 17 veya daha yeni bir sürüm
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
     - name: Download Android SDK
       run: |
@@ -35,7 +41,15 @@ jobs:
       run: |
         yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
 
-    - name: Build with Gradle
+    - name: Update version code and version name
+      run: |
+        sed -i 's/versionCode [0-9]\+/versionCode $(( $(grep versionCode app/build.gradle | awk '{print $2}') + 1 ))/' app/build.gradle
+        sed -i 's/versionName ".*"/versionName "${{ github.run_number }}"/' app/build.gradle
+
+    - name: Run tests
+      run: ./gradlew test
+
+    - name: Build Release APK
       run: ./gradlew assembleRelease
 
     - name: Upload APK
